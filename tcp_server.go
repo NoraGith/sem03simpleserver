@@ -5,13 +5,14 @@ import (
 	"log"
 	"net"
 	"sync"
+	"github.com/NoraGith/is105sem03/mycrypt"
 )
 
 func main() {
 
 	var wg sync.WaitGroup
 
-	server, err := net.Listen("tcp", "172.17.0.4:8001")
+	server, err := net.Listen("tcp", "172.17.0.4:8090")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -36,12 +37,18 @@ func main() {
 						}
 						return // fra for løkke
 					}
-					dekryptertMelding := mycrypt.Krypter([]rune(string(buf[:n]))), mycrypt.ALF_SEM03, len(mycrypt.ALF_SEM03)-4)
+					log.Println("Melding mottatt: ", string(buf[:n]))
+					dekryptertMelding := mycrypt.Krypter([]rune(string(buf[:n])), mycrypt.ALF_SEM03, len(mycrypt.ALF_SEM03)-4)
 					log.Println("Dekrypter melding: ", string(dekryptertMelding))
-					switch msg := string(dekrypterMelding); msg { 
+
+					switch msg := string(dekryptertMelding); msg { 
 
   				        case "ping":
-						_, err = c.Write([]byte("pong"))
+						resp := mycrypt.Krypter([]rune("pong"), mycrypt.ALF_SEM03, 4)
+						log.Println("SVar: ", string(resp))
+						_, err = c.Write([]byte(string(resp)))
+
+				
 					default:
 						_, err = c.Write(buf[:n])
 					}
